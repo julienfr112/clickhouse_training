@@ -1,0 +1,104 @@
+<clickhouse>
+    <logger>
+        <level>trace</level>
+        <log>clickhouse-server.log</log>
+        <errorlog>clickhouse-server.err.log</errorlog>
+    </logger>
+
+    <http_port>8123</http_port>
+    <tcp_port>9000</tcp_port>
+    <listen_host>::</listen_host>
+
+    <interserver_http_port>9009</interserver_http_port>
+    <interserver_listen_host>::</interserver_listen_host>
+
+    <path>./chdir</path>
+
+    <mlock_executable>true</mlock_executable>
+
+    <user_directories>
+        <users_xml>
+            <path>./users.xml</path>
+        </users_xml>
+        <local_directory>
+            <path>./chdir/users</path>
+        </local_directory>
+    </user_directories>
+
+    <http_options_response>
+        <header>
+            <name>Access-Control-Allow-Origin</name>
+            <value>*</value>
+        </header>
+        <header>
+            <name>Access-Control-Allow-Headers</name>
+            <value>origin, x-requested-with, content-type</value>
+        </header>
+        <header>
+            <name>Access-Control-Allow-Methods</name>
+            <value>POST, GET, OPTIONS</value>
+        </header>
+        <header>
+            <name>Access-Control-Expose-Headers</name>
+            <value>X-ClickHouse-Query-Id</value>
+        </header>
+        <header>
+            <name>Access-Control-Max-Age</name>
+            <value>86400</value>
+        </header>
+    </http_options_response>
+
+
+    <quotas>
+        <default />
+    </quotas>
+
+    <keeper_server>
+        <tcp_port>9181</tcp_port>
+        <server_id>{{idx}}</server_id>
+        <log_storage_path>./keeper_log</log_storage_path>
+        <snapshot_storage_path>./keeper_snapshot</snapshot_storage_path>
+
+        <raft_configuration>
+            {{#cluster}}
+            <server>
+                <id>{{idx}}</id>
+                <hostname>{{hostname}}</hostname>
+                <port>9234</port>
+            </server>
+            {{/cluster}}
+        </raft_configuration>
+    </keeper_server>
+
+    <zookeeper>
+        <node>
+            <host>{{hostname}}</host>
+            <port>9181</port>
+        </node>
+    </zookeeper>
+
+    <macros>
+        <shard>{{shard}}</shard>
+        <replica>{{replica}}</replica>
+    </macros>
+
+    <remote_servers>
+        <mycluster>
+            <shard>
+                {{#cluster}}
+                <replica>
+                    <host>{{hostname}}</host>
+                    <port>9000</port>
+                </replica>
+                {{/cluster}}
+            </shard>
+        </mycluster>
+    </remote_servers>
+
+    <distributed_ddl>
+        <path>/clickhouse/task_queue/ddl</path>
+        <profile>default</profile>
+    </distributed_ddl>
+
+
+</clickhouse>
